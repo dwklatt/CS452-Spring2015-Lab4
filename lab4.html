@@ -3,14 +3,15 @@
 <script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
 attribute vec4 vNormal;
+attribute  vec2 vTexCoord;
+attribute vec4 vColor;
 
 varying vec4 fColor;
+varying vec2 fTexCoord;
 
-uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform vec3 theta;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
-uniform vec4 lightPosition;
-uniform float shininess;
 uniform mat3 normalMatrix;
 
 void
@@ -20,10 +21,6 @@ main()
     
     vec3 L;
     
-    // check for directional light
-    
-    if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
-    else L = normalize( lightPosition.xyz - pos );
 
     // Because the eye point the is at the orgin
     // the vector from the vertex position to the eye is
@@ -38,36 +35,29 @@ main()
     
     vec3 N = normalize( normalMatrix*vNormal.xyz);
 
-
-    // Compute terms in the illumination equation
-    vec4 ambient = ambientProduct;
-
-    float Kd = max( dot(L, N), 0.0 );
-    vec4  diffuse = Kd*diffuseProduct;
-
-    float Ks = pow( max(dot(N, H), 0.0), shininess );
-    vec4  specular = Ks * specularProduct;
-    
-    if( dot(L, N) < 0.0 ) {
-	specular = vec4(0.0, 0.0, 0.0, 1.0);
-    } 
-
     gl_Position = projectionMatrix * modelViewMatrix * vPosition;
     
-    fColor = ambient + diffuse +specular;
-
-    fColor.a = 1.0;
+    fColor = vColor;
+    fTexCoord = vTexCoord;
 }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
-  precision mediump float;
-  
-  varying vec4 fColor;
 
-  void main(void) {
-    gl_FragColor = fColor;
-  }
+precision mediump float;
+
+varying vec4 fColor;
+varying  vec2 fTexCoord;
+
+uniform sampler2D Tex0;
+uniform sampler2D Tex1;
+
+void
+main()
+{
+    gl_FragColor = fColor*(texture2D(Tex0, fTexCoord)*texture2D(Tex1, fTexCoord));
+
+}
 </script>
 
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
