@@ -1,1 +1,2 @@
 name, date, description
+Derek Klatt, 3/30, lab 3 with red and black texture.

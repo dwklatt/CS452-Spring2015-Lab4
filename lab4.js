@@ -1,3 +1,4 @@
+//Derek Klatt 3/30 lab4
 var gl;
 
 var ctm;
